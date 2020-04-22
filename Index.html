@@ -7,47 +7,49 @@
     <title>Document</title>
 </head>
 <body>
+    <div>
+        <button id="difusão">Difusão</button>
+        <button id="advecção">Advecção</button>
+        <button id="projeção">Projeção</button>
+        <button id="rodarDifusao">Rodar Difusão</button>
+        <button id="rodarAdveccao">Rodar Advecção</button>
+        <button id="rodarTudo">Rodar Tudo</button>
+        <button id="pausar">Pausar</button>
+        </div>
+    
+            <div>
+                <label for="col">Coluna:</label>
+                <input type="number" id="coluna" value="1"/>
+    
+                <label for="lin">Linha:</label>
+                <input type="number" id="linha" value="1"/>
+    
+                <label for="dens">Densidade:</label>
+                <input type="number" id="densidade" value="10"/>
+                
+            </div>
+            <div class="button">
+                <button id="botaoDensidade">Add Densidade</button>
+            </div>
+    
+            <div>
+                <label for="col">Coluna:</label>
+                <input type="number" id="colunaVetor" value="1"/>
+    
+                <label for="lin">Linha:</label>
+                <input type="number" id="linhaVetor" value="1"/>
+    
+                <label for="dens">Vetor X:</label>
+                <input type="number" id="vetorX" value="10"/>
+                <label for="dens">Vetor Y:</label>
+                <input type="number" id="vetorY" value="10"/>
+                
+            </div>
+            <div class="button">
+                <button id="botaoVelocidade">Add Velocidade</button>
+            </div>
+
     <canvas></canvas>
-    <button id="difusão">Difusão</button>
-    <button id="advecção">Advecção</button>
-    <button id="projeção">Projeção</button>
-    <button id="rodarDifusao">Rodar Difusão</button>
-    <button id="rodarAdveccao">Rodar Advecção</button>
-    <button id="rodarTudo">Rodar Tudo</button>
-
-
-        <div>
-            <label for="col">Coluna:</label>
-            <input type="number" id="coluna" value="1"/>
-
-            <label for="lin">Linha:</label>
-            <input type="number" id="linha" value="1"/>
-
-            <label for="dens">Densidade:</label>
-            <input type="number" id="densidade" value="10"/>
-            
-        </div>
-        <div class="button">
-            <button id="botaoDensidade">Add Densidade</button>
-        </div>
-
-        <div>
-            <label for="col">Coluna:</label>
-            <input type="number" id="colunaVetor" value="1"/>
-
-            <label for="lin">Linha:</label>
-            <input type="number" id="linhaVetor" value="1"/>
-
-            <label for="dens">Vetor X:</label>
-            <input type="number" id="vetorX" value="10"/>
-            <label for="dens">Vetor Y:</label>
-            <input type="number" id="vetorY" value="10"/>
-            
-        </div>
-        <div class="button">
-            <button id="botaoVelocidade">Add Velocidade</button>
-        </div>
-
     
 <script>
 
@@ -207,6 +209,13 @@
                 pode3 = false;
             else
                 pode3 = true;
+        })
+
+        var botaoPausar = document.getElementById("pausar");
+        botaoPausar.addEventListener("click", function(){
+            pode = false;
+            pode2 = false;
+            pode3 = false;
         })
 
 
