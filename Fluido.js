@@ -38,6 +38,8 @@ CelulaFluido.prototype.desenhaQuadrado = function(ctx){
 
 CelulaFluido.prototype.desenharVelocidadeCelula = function(ctx){
 
+    this.destinoX = this.posX+this.vetorX;
+    this.destinoY = this.posY+this.vetorY;
     ctx.fillStyle = "white";
     ctx.strokeStyle = "white";
     ctx.beginPath();
@@ -72,8 +74,10 @@ CelulaFluido.prototype.addDensidade = function(densidade){
 function Fluido(exemplo = {})
 {
     var {
-        tam = 30,
-        dt = 1
+        tam = 3,
+        dt = 1,
+        constDiff = 0.25,
+        acuracy = 0
     } = exemplo;
 
     this.tam = tam;
@@ -83,7 +87,8 @@ function Fluido(exemplo = {})
     this.gridVelocidade0 = [];
     this.gridDensidade = [];
     this.gridDensidade0 = [];
-    
+    this.constDiff = constDiff;
+    this.acuracy = acuracy;
 } 
 Fluido.prototype = new Fluido({});
 Fluido.constructor = Fluido;
@@ -113,264 +118,75 @@ Fluido.prototype.criarGrids = function(){
     }
 }
 
+
 Fluido.prototype.desenharFluido = function(ctx)
 {
-    /*for(var i=0; i<this.tam; i++)
+    for(var i=0; i<this.tam; i++)
         for(var j=0; j<this.tam; j++)
         {
             this.grid[i][j].desenhaQuadrado(ctx);
             
-        }*/
-    
-    this.desenharDensidade(ctx);
-
-    //this.desenharVelocidade(ctx);
-}
-
-Fluido.prototype.desenharVelocidade = function(ctx)
-{
-    for(var i=0; i<this.tam; i++)
-        for(var j=0; j<this.tam; j++)
-        {
-            this.grid[i][j].desenharVelocidadeCelula(ctx);
-        }
-}
-
-Fluido.prototype.desenharDensidade = function(ctx)
-{
-    for(var i=0; i<this.tam; i++)
-        for(var j=0; j<this.tam; j++)
-        {
-            this.gridDensidade0[i][j].desenharDensidadeCelula(ctx);
-        }
-}
-
-Fluido.prototype.addForcasExternas = function(forcasExternas,dt)
-{
-    for(var i=0; i<this.tam; i++)
-        for(var j=0; j<this.tam; j++)
-        {
-            this.grid[i][j].addForcaExterna(forcasExternas[i][j],dt);
-        }
-}
-
-Fluido.prototype.addDensidade = function(densidade,dt)
-{
-    
-}
-
-Fluido.prototype.addAdvection = function()
-{
-    for(var i=0; i<this.tam; i++)
-    {
-        for(var j=0; j<this.tam; j++)
-        {
-            this.gridDensidade[i][j].densidade = this.bad_advection(i,j);
-            this.gridDensidade[i][j].vetorX = this.bad_advectionVecX(i,j);
-            this.gridDensidade[i][j].vetorY = this.bad_advectionVecY(i,j);
-        }
-    }
-    for(var i=0; i<this.tam; i++)
-    {
-        for(var j=0; j<this.tam; j++)
-        {
-            this.gridDensidade0[i][j].densidade = this.gridDensidade[i][j].densidade;
-            this.gridDensidade0[i][j].vetorX = this.gridDensidade[i][j].vetorX; 
-            this.gridDensidade0[i][j].vetorY = this.gridDensidade[i][j].vetorY;
-        }
-    }
-}
-
-Fluido.prototype.bad_advection = function(i,j)
-{
-    var velhoX=0, velhoY=0;
-    velhoX = i - this.dt*this.gridDensidade0[i][j].vetorX;
-    
-    velhoY = j - this.dt*this.gridDensidade0[i][j].vetorY; 
-    console.log("i: "+i+" - "+this.dt+" = "+velhoX+" j: "+j+" - "+this.dt+" = "+velhoY);
-   
-    if(velhoX>0)
-    velhoX = Math.floor(velhoX);
-    else
-    velhoX = 0;
-
-    if(velhoX<this.tam-1)
-    velhoX = Math.floor(velhoX);
-    else
-    velhoX = this.tam-1;
-    
-    if(velhoY>0)
-    velhoY = Math.floor(velhoY);
-    else
-    velhoY = 0;
-
-    if(velhoY<this.tam-1)
-    velhoY = Math.floor(velhoY);
-    else
-    velhoY = this.tam-1;
-
-    var retorno; 
-    retorno = this.gridDensidade0[velhoX][velhoY].densidade; 
-
-    return retorno;
-}
-
-Fluido.prototype.bad_advectionVecX = function(i,j)
-{
-    var velhoX=0, velhoY=0;
-    velhoX = i - this.dt*this.gridDensidade0[i][j].vetorX;
-    
-    velhoY = j - this.dt*this.gridDensidade0[i][j].vetorY; 
-    console.log("i: "+i+" - "+this.dt+" = "+velhoX+" j: "+j+" - "+this.dt+" = "+velhoY);
-   
-    if(velhoX>0)
-    velhoX = Math.floor(velhoX);
-    else
-    velhoX = 0;
-
-    if(velhoX<this.tam-1)
-    velhoX = Math.floor(velhoX);
-    else
-    velhoX = this.tam-1;
-    
-    if(velhoY>0)
-    velhoY = Math.floor(velhoY);
-    else
-    velhoY = 0;
-
-    if(velhoY<this.tam-1)
-    velhoY = Math.floor(velhoY);
-    else
-    velhoY = this.tam-1;
-    
-    var retorno; 
-    retorno = this.gridDensidade0[velhoX][velhoY].vetorX; 
-
-    return retorno;
-}
-
-Fluido.prototype.bad_advectionVecY = function(i,j)
-{
-    var velhoX=0, velhoY=0;
-    velhoX = i - this.dt*this.gridDensidade0[i][j].vetorX;
-    
-    velhoY = j - this.dt*this.gridDensidade0[i][j].vetorY; 
-    console.log("i: "+i+" - "+this.dt+" = "+velhoX+" j: "+j+" - "+this.dt+" = "+velhoY);
-   
-    if(velhoX>0)
-    velhoX = Math.floor(velhoX);
-    else
-    velhoX = 0;
-
-    if(velhoX<this.tam-1)
-    velhoX = Math.floor(velhoX);
-    else
-    velhoX = this.tam-1;
-    
-    if(velhoY>0)
-    velhoY = Math.floor(velhoY);
-    else
-    velhoY = 0;
-
-    if(velhoY<this.tam-1)
-    velhoY = Math.floor(velhoY);
-    else
-    velhoY = this.tam-1;
-
-    var retorno; 
-    retorno = this.gridDensidade0[velhoX][velhoY].vetorY; 
-
-    return retorno;
-}
-Fluido.prototype.addDiffusion = function()
-{
-    for(var i=0; i<this.tam; i++)
-    {
-        for(var j=0; j<this.tam; j++)
-        {
-            this.gridDensidade[i][j].densidade = this.good_difusion(i,j);
-        }
-    }
-    //this.grid = this.gridDensidade0;
-    for(var i=0; i<this.tam; i++)
-    {
-        for(var j=0; j<this.tam; j++)
-        {
-            this.gridDensidade0[i][j].densidade = this.gridDensidade[i][j].densidade;
-        }
-    }
-
-}
-
-Fluido.prototype.bad_difusion = function(i,j)
-{   
-    var retorno=this.gridDensidade0[i][j].densidade;
-    var aux=0;
-    var constDiff = 0.25;
-    if(i>0)
-    {
-        retorno+=this.gridDensidade0[i-1][j].densidade*constDiff;
-        aux++;
-    }
-    if(i<this.tam-1)
-    {
-        retorno+=this.gridDensidade0[i+1][j].densidade*constDiff;
-        aux++;
-    }
-    if(j>0)
-    {
-        retorno+=this.gridDensidade0[i][j-1].densidade*constDiff;
-        aux++;
-    }
-    if(j<this.tam-1)
-    {
-        retorno+=this.gridDensidade0[i][j+1].densidade*constDiff;
-        aux++;
-    }
-
-    retorno-=aux*this.gridDensidade0[i][j].densidade*constDiff;
-
-    if(retorno<0)
-        retorno=0;
-
-    return retorno;
-}
-
-Fluido.prototype.good_difusion = function(i,j)
-{
-    var retorno=this.gridDensidade0[i][j].densidade;
-    var aux=0;
-    var constDiff = 0.25;
-    if(i>0)
-    {
-        retorno+=this.gridDensidade[i-1][j].densidade*constDiff;
-        aux++;
-    }
-    if(i<this.tam-1)
-    {
-        retorno+=this.gridDensidade[i+1][j].densidade*constDiff;
-        aux++;
-    }
-    if(j>0)
-    {
-        retorno+=this.gridDensidade[i][j-1].densidade*constDiff;
-        aux++;
-    }
-    if(j<this.tam-1)
-    {
-        retorno+=this.gridDensidade[i][j+1].densidade*constDiff;
-        aux++;
-    }
-
-    retorno/=(1+aux*constDiff);
-
-    if(retorno<0)
-        retorno=0;
-
-    return retorno;
+        }    
 }
 
 Fluido.prototype.projection = function()
 {
+    for(var i=0; i<this.tam; i++)
+    for(var j=0; j<this.tam; j++)
+    {
+        
+    }
+}
 
+Fluido.prototype.advection = function(grid, grid0, atributo='densidade')
+{
+    
+}
+
+Fluido.prototype.diffusion = function(grid, grid0,atributo='densidade')
+{
+    this.lin_solve(grid,grid0,atributo);
+}
+
+Fluido.prototype.lin_solve = function(grid, grid0, atributo='densidade')
+{
+    for(var a; a<this.acuracy; a++){
+        for(var i=0; i<this.tam; i++)
+        for(var j=0; j<this.tam; j++)
+        {
+            grid[i][j][atributo] = grid0[i][j][atributo] + this.constDiff*(grid[i+1][j][atributo] + grid[i-1][j][atributo] + grid[i][j+1][atributo] + grid[i][j-1][atributo])/(1+4*this.constDiff);
+        }
+        this.set_bnd(grid,grid0,atributo);
+    }
+}
+
+Fluido.prototype.set_bnd = function(b, grid,atributo='densidade')
+{
+    for(var i =1; i<this.tam-1; i++)
+    {
+        grid[0][i][atributo] = b==1? -grid[1][i][atributo] : grid[1][i][atributo];
+        grid[this.tam-1][i][atributo] = b==1? -grid[this.tam-2][i][atributo] : grid[this.tam-2][i][atributo];
+    }
+
+    for(var j =1; j<this.tam-1; j++)
+    {
+        grid[j][0][atributo] = b==2? -grid[j][1][atributo] : grid[j][1][atributo];
+        grid[j][this.tam-1][atributo] = b==2? -grid[j][this.tam-2][atributo] : grid[j][this.tam-2][atributo];
+    }
+    
+    grid[0][0][atributo] = 0.5*(grid[1][0][atributo] + grid[0][1][atributo]);
+    grid[0][this.tam-1][atributo] = 0.5*(grid[0][this.tam-2][atributo] + grid[1][this.tam-1][atributo]);
+    grid[this.tam-1][this.tam-1][atributo] = 0.5*(grid[this.tam-1][this.tam-2][atributo] + grid[this.tam-2][this.tam-1][atributo]);
+    grid[this.tam-1][0][atributo] = 0.5*(grid[this.tam-1][1][atributo] + grid[this.tam-2][0][atributo]);   
+}
+
+Fluido.prototype.swap = function(x,y)
+{
+    // remove all elements from x into a temporary array
+    var temp = x.splice(0, x.length);
+    // then copy y into x
+    x.push.apply(x, y);
+    // clear y, then copy temp into it
+    y.length = 0;
+    y.push.apply(y, temp);
 }

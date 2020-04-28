@@ -23,7 +23,4 @@ CelulaFluido.prototype.desenharCelula = function(ctx){
     ctx.moveTo(this.x+this.w/2,this.y+this.h/2);
     ctx.lineTo(512,512);
     ctx.stroke();
-
-
-
 }

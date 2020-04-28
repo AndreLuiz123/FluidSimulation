@@ -8,6 +8,10 @@
 </head>
 <body>
     <div>
+        <button id="mudarDesenho">Mudar Desenho</button>
+    </div>
+
+    <div>
         <canvas></canvas>
         <button id="difusão">Difusão</button>
         <button id="advecção">Advecção</button>
@@ -16,7 +20,7 @@
         <button id="rodarAdveccao">Rodar Advecção</button>
         <button id="rodarTudo">Rodar Tudo</button>
         <button id="pausar">Pausar</button>
-        </div>
+    </div>
     
             <div>
                 <label for="col">Coluna:</label>
@@ -99,16 +103,19 @@
             ctx.fillStyle = "rgb(0,0,0)";
             ctx.fillRect(0,0,canvas.width, canvas.height);
 
-            fluido.desenharFluido(ctx);
+            if(mudaCor)
+            fluido.desenharFluido(ctx,'densidade');
+            else
+            fluido.desenharFluido(ctx,'velocidade');
             
             if(pode)
-            fluido.addDiffusion();
+            //fluido.addDiffusion();
             if(pode2)
-            fluido.addAdvection();
+            //fluido.addAdvection();
             if(pode3)
             {
-                fluido.addDiffusion();
-                fluido.addAdvection();
+                //fluido.addDiffusion();
+                //fluido.addAdvection();
             }
 
             requestAnimationFrame(passo);
@@ -116,14 +123,14 @@
 
         function difusao()
         {
-            fluido.addDiffusion();
+            //fluido.addDiffusion();
         }
         var varBotao = document.getElementById("difusão");
         varBotao.addEventListener("click", difusao);
 
         function adveccao()
         {
-            fluido.addAdvection();
+            //fluido.addAdvection();
         }
         var varBotao = document.getElementById("advecção");
         varBotao.addEventListener("click", adveccao);
@@ -216,6 +223,15 @@
             pode = false;
             pode2 = false;
             pode3 = false;
+        })
+
+        var botaoMudarDesenho = document.getElementById("mudarDesenho");
+        var mudaCor = false;
+        botaoMudarDesenho.addEventListener("click", function(){
+            if(mudaCor)
+                mudaCor = false;
+            else
+                mudaCor = true;
         })
 
 
