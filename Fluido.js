@@ -73,7 +73,7 @@ function Fluido(exemplo = {})
 {
     var {
         tam = 64,
-        dt = 0.25,
+        dt = 0.1,
         constDiff = 0.25,
         acuracy = 1
     } = exemplo;
@@ -135,8 +135,8 @@ Fluido.prototype.criarGrids = function(){
 
 Fluido.prototype.desenharFluido = function(ctx,atributo='densidade')
 {
-    for(var i=0; i<this.tamOriginal; i++)
-        for(var j=0; j<this.tamOriginal; j++)
+    for(var i=1; i<this.tamOriginal-1; i++)
+        for(var j=1; j<this.tamOriginal-1; j++)
         {
             this.grid[i][j].desenhaQuadrado(ctx);
         }    
@@ -144,8 +144,8 @@ Fluido.prototype.desenharFluido = function(ctx,atributo='densidade')
 
 Fluido.prototype.desenharFluidoDensidade = function(ctx,atributo='densidade')
 {
-    for(var i=0; i<this.tamOriginal; i++)
-        for(var j=0; j<this.tamOriginal; j++)
+    for(var i=1; i<this.tamOriginal-1; i++)
+        for(var j=1; j<this.tamOriginal-1; j++)
         {
             this.grid[i][j].desenharDensidadeCelula(ctx);
         }    
@@ -153,8 +153,8 @@ Fluido.prototype.desenharFluidoDensidade = function(ctx,atributo='densidade')
 
 Fluido.prototype.desenharFluidoVelocidade = function(ctx,atributo='densidade')
 {
-    for(var i=0; i<this.tamOriginal; i++)
-        for(var j=0; j<this.tamOriginal; j++)
+    for(var i=1; i<this.tamOriginal-1; i++)
+        for(var j=1; j<this.tamOriginal-1; j++)
         {
             this.grid[i][j].desenharVelocidadeCelula(ctx);
         }    
@@ -174,7 +174,7 @@ Fluido.prototype.projection = function()
     this.set_bnd(0,this.p,'numero');
     
     
-    for(var k=0; k<20; k++)
+    for(var k=0; k<1; k++)
     {
         for(var i=1; i<this.tamOriginal-1; i++)
         for(var j=1; j<this.tamOriginal-1; j++)
@@ -244,11 +244,12 @@ Fluido.prototype.diffusion = function(atributo,b)
 Fluido.prototype.lin_solve = function(grid, grid0, atributo,b)
 {
 
+    var constante = this.constDiff*this.dt*this.tam*this.tam;
     for(var a=0; a<this.acuracy; a++){
         for(var i=1; i<this.tamOriginal-1; i++)
         for(var j=1; j<this.tamOriginal-1; j++)
         {
-            grid[i][j][atributo] = (grid0[i][j][atributo] + this.constDiff*(grid[i+1][j][atributo] + grid[i-1][j][atributo] + grid[i][j+1][atributo] + grid[i][j-1][atributo]))/(1+4*this.constDiff);   
+            grid[i][j][atributo] = (grid0[i][j][atributo] + constante*(grid[i+1][j][atributo] + grid[i-1][j][atributo] + grid[i][j+1][atributo] + grid[i][j-1][atributo]))/(1+4*constante);   
         }
         this.set_bnd(b,grid,atributo);
     }
