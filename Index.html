@@ -7,10 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    <div>
-        <button id="mudarDesenho">Mudar Desenho</button>
-    </div>
 
+    
+    
     <div>
         <canvas></canvas>
         <button id="difusão">Difusão</button>
@@ -20,6 +19,7 @@
         <button id="rodarAdveccao">Rodar Advecção</button>
         <button id="rodarTudo">Rodar Tudo</button>
         <button id="pausar">Pausar</button>
+        <button id="mudarDesenho">Mudar Desenho</button>
     </div>
     
             <div>
@@ -38,15 +38,15 @@
             </div>
     
             <div>
-                <label for="col">Coluna:</label>
+                <label for="col2">Coluna:</label>
                 <input type="number" id="colunaVetor" value="1"/>
     
-                <label for="lin">Linha:</label>
+                <label for="lin2">Linha:</label>
                 <input type="number" id="linhaVetor" value="1"/>
     
-                <label for="dens">Vetor X:</label>
+                <label for="vetorX">Vetor X:</label>
                 <input type="number" id="vetorX" value="10"/>
-                <label for="dens">Vetor Y:</label>
+                <label for="vetorY">Vetor Y:</label>
                 <input type="number" id="vetorY" value="10"/>
                 
             </div>
@@ -79,16 +79,17 @@
         fluido.gridDensidade0[1][1].vetorY = 1;
         fluido.gridDensidade0[1][2].vetorX = 1;*/
 
-        for(var i=1; i<10; i++)
-            for(var j=1; j<10; j++)
+        for(var i=1; i<fluido.tamOriginal-1; i++)
             {
-                fluido.grid0[i][j].densidade = Math.random()*300+100;
-                fluido.grid0[i][j].vetorX = 10;//Math.floor(Math.random()*500 - 250);
-                fluido.grid0[i][j].vetorY = 10; //Math.floor(Math.random()*500 - 250);
-                fluido.grid[i][j].densidade = Math.random()*300+100;
-                fluido.grid[i][j].vetorX = 10;//Math.floor(Math.random()*500 - 250);
-                fluido.grid[i][j].vetorY = 10; //Math.floor(Math.random()*500 - 250);
-            }    
+               // fluido.grid0[i][j].densidade = Math.random()*300+100;
+                fluido.grid[i][3].vetorX =-51//Math.floor(Math.random()*12 - 6);
+                fluido.grid[i][3].vetorY = -51//Math.floor(Math.random()*12 - 6);
+                //fluido.grid[i][i].densidade = Math.random()*300+100;
+              //  fluido.grid[i][j].vetorX = 2;//Math.floor(Math.random()*500 - 250);
+              //  fluido.grid[i][j].vetorY = 10; //Math.floor(Math.random()*500 - 250);
+            }  
+            fluido.grid[32][32].densidade = 1000;//Math.random()*300+100;
+           // fluido.grid[2][2].vetorX = -51
 
 
         
@@ -106,41 +107,79 @@
             ctx.fillStyle = "rgb(0,0,0)";
             ctx.fillRect(0,0,canvas.width, canvas.height);
 
+
+
             if(mudaCor)
-            fluido.desenharFluido(ctx,'densidade');
+            fluido.desenharFluidoDensidade(ctx);
             else
-            fluido.desenharFluido(ctx,'velocidade');
+            fluido.desenharFluidoVelocidade(ctx);
+
+           // fluido.desenharFluido(ctx);
             
             if(pode)
-            fluido.diffusion('densidade',0);
+            {
+                fluido.atualizarGrid0();
+                fluido.diffusion('densidade',0);
+            }
+            
             if(pode2)
-            fluido.advection();
+            {
+                fluido.atualizarGrid0();
+                fluido.advection('densidade',0);
+            }
             if(pode3)
             {
-                difusao();
-                adveccao();
+                dens_step();
+                vel_step();
             }
 
             requestAnimationFrame(passo);
         }
 
+        function dens_step()
+        {
+            //console.log("DENSIDADE");
+            fluido.atualizarGrid0();
+            fluido.diffusion('densidade',0);
+            fluido.atualizarGrid0();
+            fluido.advection('densidade',0);
+        }
+        
+        function vel_step()
+        {
+            //console.log("VELOCIDADE");
+            fluido.atualizarGrid0();
+            fluido.diffusion('vetorX',1);
+            fluido.atualizarGrid0();
+            fluido.diffusion('vetorY',2);
+            fluido.projection();
+           // console.log("VELOCIDADE DIFUSÃO");
+            fluido.atualizarGrid0();
+            fluido.advection('vetorX',1);
+            fluido.atualizarGrid0();
+            fluido.advection('vetorY',2);
+            fluido.projection();
+           // console.log("VELOCIDADE ADVECÇÃO");
+        }
+
         function difusao()
         {
-            fluido.diffusion('densidade',0);
-            fluido.diffusion('vetorX',1);
-            fluido.diffusion('vetorY',2);
+            fluido.projection();
+            //fluido.diffusion('densidade',0);
+           // fluido.diffusion('vetorX',1);
+           // fluido.diffusion('vetorY',2);
         }
         var varBotao = document.getElementById("difusão");
         varBotao.addEventListener("click", difusao);
 
         function adveccao()
         {
-            /*
+            
             fluido.advection('densidade',0);
-            fluido.advection('vetorX',1);
-            fluido.advection('vetorY',2);
-            */
-           fluido.addAdvection();
+           // fluido.advection('vetorX',1);
+           // fluido.advection('vetorY',2);
+            
+           //fluido.addAdvection();
         }
         var varBotao = document.getElementById("advecção");
         varBotao.addEventListener("click", adveccao);
@@ -155,19 +194,23 @@
             var a = Number(coluna.value);
             var b = Number(linha.value);
             var c = Number(densidade.value);
+          //  console.log(a+","+b+","+c);
 
             
             if(a<0)
                 a = 0;
-            if(a>fluido.tam-1)
-                a = fluido.tam-1;
+            if(a>fluido.tamOriginal-1)
+                a = fluido.tamOriginal-1;
 
             if(b<0)
                 b = 0;
-            if(b>fluido.tam-1)
-                b = fluido.tam-1;
+            if(b>fluido.tamOriginal-1)
+                b = fluido.tamOriginal-1;
+
+            //console.log(a+","+b+","+c+","+fluido.tamOriginal);
             
             fluido.grid[a][b].densidade = c; 
+            fluido.grid0[a][b].densidade = c; 
         }
         botaoDensidade.addEventListener("click", valorNovoDensidadeCelula);
         
@@ -176,17 +219,18 @@
         
         var vetorX = document.getElementById("vetorX");
         var vetorY = document.getElementById("vetorY");
-        var coluna = document.getElementById("coluna");
-        var linha = document.getElementById("linha");
+        var colunaVetor = document.getElementById("colunaVetor");
+        var linhaVetor = document.getElementById("linhaVetor");
         var botaoVelocidade = document.getElementById("botaoVelocidade");
 
         function valorNovoVelocidadeCelula()
         {
-            var a = Number(coluna.value);
-            var b = Number(linha.value);
+            var a = Number(colunaVetor.value);
+            var b = Number(linhaVetor.value);
             var c = Number(vetorX.value);
             var d = Number(vetorY.value);
 
+          //  console.log(a+","+b+","+c+","+d);
             
             if(a<0)
                 a = 0;
@@ -198,6 +242,9 @@
             if(b>fluido.tam-1)
                 b = fluido.tam-1;
             
+           // console.log(a+","+b+","+c+","+d+","+fluido.tamOriginal);
+            
+
             fluido.grid[a][b].vetorX = c;
             fluido.grid[a][b].vetorY = d; 
         }

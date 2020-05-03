@@ -74,7 +74,7 @@ CelulaFluido.prototype.addDensidade = function(densidade){
 function Fluido(exemplo = {})
 {
     var {
-        tam = 30,
+        tam = 3,
         dt = 1
     } = exemplo;
 
