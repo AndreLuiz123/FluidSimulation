@@ -51,7 +51,8 @@ CelulaFluido.prototype.desenharVelocidadeCelula = function(ctx){
 
 CelulaFluido.prototype.desenharDensidadeCelula = function(ctx){
 
-    ctx.fillStyle = "rgb("+this.densidade+","+this.densidade+","+this.densidade+")";
+    //ctx.fillStyle = "rgb("+this.densidade+","+this.densidade+","+this.densidade+")";
+    ctx.fillStyle = "rgb(0,0,"+this.densidade+")";
     ctx.fillRect(this.posX,this.posY,this.w, this.h);
     ctx.fillStyle = "red";
     ctx.font = "10px Verdana";
@@ -174,7 +175,7 @@ Fluido.prototype.projection = function()
     this.set_bnd(0,this.p,'numero');
     
     
-    for(var k=0; k<1; k++)
+    for(var k=0; k<this.acuracy; k++)
     {
         for(var i=1; i<this.tamOriginal-1; i++)
         for(var j=1; j<this.tamOriginal-1; j++)
@@ -199,7 +200,7 @@ Fluido.prototype.advection = function(atributo, b)
 {
     var i0, j0, i1, j1, s0, s1, t0, t1;
     var x, y;
-    var dt0 = this.dt*this.tam
+    var dt0 = this.dt*this.tam;
 
     for(var i=1; i<this.tamOriginal-1; i++)
     for(var j=1; j<this.tamOriginal-1; j++)
