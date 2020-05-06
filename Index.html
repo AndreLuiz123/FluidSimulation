@@ -8,29 +8,35 @@
 </head>
 <body>
 
-    
+    <div>
+        <label for="acu">Acurácia:</label>
+        <input type="number" id="acuracia" value="10"/>
+        <label for="dt">Delta:</label>
+        <input type="number" id="delta" value="0.1"/>
+        <button id="botaoValores">Add Valores</button>
+    </div>
     
     <div>
         <canvas></canvas>
         <button id="difusão">Difusão</button>
         <button id="advecção">Advecção</button>
         <button id="projeção">Projeção</button>
-        <button id="rodarDifusao">Rodar Difusão</button>
-        <button id="rodarAdveccao">Rodar Advecção</button>
+        <button id="rodarAdveccao">Rodar Tudo passo a passo</button>
         <button id="rodarTudo">Rodar Tudo</button>
         <button id="pausar">Pausar</button>
         <button id="mudarDesenho">Mudar Desenho</button>
+        <button id="rodarDifusao">Resetar</button>
     </div>
     
             <div>
                 <label for="col">Coluna:</label>
-                <input type="number" id="coluna" value="1"/>
+                <input type="number" id="coluna" value="32"/>
     
                 <label for="lin">Linha:</label>
-                <input type="number" id="linha" value="1"/>
+                <input type="number" id="linha" value="32"/>
     
                 <label for="dens">Densidade:</label>
-                <input type="number" id="densidade" value="10"/>
+                <input type="number" id="densidade" value="10000"/>
                 
             </div>
             <div class="button">
@@ -39,15 +45,15 @@
     
             <div>
                 <label for="col2">Coluna:</label>
-                <input type="number" id="colunaVetor" value="1"/>
+                <input type="number" id="colunaVetor" value="32"/>
     
                 <label for="lin2">Linha:</label>
-                <input type="number" id="linhaVetor" value="1"/>
+                <input type="number" id="linhaVetor" value="32"/>
     
                 <label for="vetorX">Vetor X:</label>
-                <input type="number" id="vetorX" value="10"/>
+                <input type="number" id="vetorX" value="10000"/>
                 <label for="vetorY">Vetor Y:</label>
-                <input type="number" id="vetorY" value="10"/>
+                <input type="number" id="vetorY" value="10000"/>
                 
             </div>
             <div class="button">
@@ -70,7 +76,16 @@
         fluido.criarGrids();
 
         var pode=false, pode2=false, pode3=false;
-        
+
+
+        for(var i=1; i<9;i++)
+            for(var j=1; j<9; j++)
+            {
+                fluido.grid[31+i][31+j].densidade = 5000;
+            }
+
+
+
         function passo(t)
         {
             dt = (t-anterior)/1000;
@@ -118,12 +133,12 @@
         {
             fluido.atualizarGrid0();
             fluido.diffusion('vetorX',1);
-            fluido.atualizarGrid0();
+           //fluido.atualizarGrid0();
             fluido.diffusion('vetorY',2);
             fluido.projection();
             fluido.atualizarGrid0();
             fluido.advection('vetorX',1);
-            fluido.atualizarGrid0();
+            //fluido.atualizarGrid0();
             fluido.advection('vetorY',2);
             fluido.projection();
         }
@@ -208,18 +223,19 @@
         //------------------------------------------------------------------------
         var botaoRodarDifusao = document.getElementById("rodarDifusao");
         botaoRodarDifusao.addEventListener("click", function(){
-            if(pode)
-                pode = false;
-            else
-                pode = true;
+            for(var i=0; i<fluido.tamOriginal;i++)
+            for(var j=0; j<fluido.tamOriginal; j++)
+            {
+                fluido.grid[i][j].densidade = 0;
+                fluido.grid[i][j].vetorX = 0;
+                fluido.grid[i][j].vetorY = 0;
+            }
         })
 
         var botaoRodarAdveccao = document.getElementById("rodarAdveccao");
         botaoRodarAdveccao.addEventListener("click", function(){
-            if(pode2)
-                pode2 = false;
-            else
-                pode2 = true;
+            dens_step();
+            vel_step();
         })
 
         var botaoRodarTudo = document.getElementById("rodarTudo");
@@ -245,6 +261,21 @@
             else
                 mudaCor = true;
         })
+
+        var acuracia = document.getElementById("acuracia");
+        var delta = document.getElementById("delta");
+        var botaoValores = document.getElementById("botaoValores");
+
+        function valoresNovos()
+        {
+            var a = Number(acuracia.value);
+            var b = Number(delta.value);
+            
+
+            fluido.acuracy = a;
+            fluido.dt = b; 
+        }
+        botaoValores.addEventListener("click", valoresNovos);
 
 
         addEventListener("mouseclick", function(e){
