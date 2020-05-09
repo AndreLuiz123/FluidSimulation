@@ -39,23 +39,30 @@ CelulaFluido.prototype.desenhaQuadrado = function(ctx){
 
 CelulaFluido.prototype.desenharVelocidadeCelula = function(ctx){
 
-    this.destinoX = this.posX+this.vetorX;
-    this.destinoY = this.posY+this.vetorY;
+    this.destinoX = (this.posX+this.vetorX);
+    this.destinoY = (this.posY+this.vetorY);
     ctx.fillStyle = "white";
     ctx.strokeStyle = "white";
     ctx.beginPath();
     ctx.moveTo(this.posX+this.w/2,this.posY+this.h/2);
     ctx.lineTo(this.destinoX+this.w/2,this.destinoY+this.h/2);
+    //console.log(this.posX +" - "+this.vetorX+" = "+Number(this.vetorX+this.posX));
     ctx.stroke();
+    /*ctx.beginPath();
+    ctx.fillStyle = "red";
+    ctx.strokeStyle = "red";
+    if(this.vetorX!=0 ||this.vetorY!=0)
+    ctx.arc(this.posX+this.w/2, this.posY+this.h/2, 10*Math.sqrt(this.vetorX*this.vetorX+this.vetorY*this.vetorY), 0, Math.PI * 2, true);  
+    ctx.stroke();*/
 }
 
 CelulaFluido.prototype.desenharDensidadeCelula = function(ctx){
 
-    //ctx.fillStyle = "rgb("+this.densidade+","+this.densidade+","+this.densidade+")";
-    ctx.fillStyle = "rgb(0,0,"+this.densidade+")";
+    ctx.fillStyle = "rgb("+this.densidade+","+this.densidade+","+this.densidade+")";
+    //ctx.fillStyle = "rgb(0,0,"+this.densidade+")";
     ctx.fillRect(this.posX,this.posY,this.w, this.h);
-    ctx.fillStyle = "red";
-    ctx.font = "10px Verdana";
+    //ctx.fillStyle = "red";
+    //ctx.font = "10px Verdana";
 }
 
 CelulaFluido.prototype.addForcaExterna = function(forcaExterna,dt){
@@ -75,7 +82,7 @@ function Fluido(exemplo = {})
     var {
         tam = 64,
         dt = 0.1,
-        constDiff = 0.1,
+        constDiff = 0.0,
         acuracy = 1
     } = exemplo;
 
@@ -191,8 +198,8 @@ Fluido.prototype.advection = function(atributo, b)
     for(var i=1; i<this.tamOriginal-1; i++)
     for(var j=1; j<this.tamOriginal-1; j++)
     {
-        x = i - dt0*this.grid[i][j].vetorX;
-        y = j - dt0*this.grid[i][j].vetorY;
+        x = i - dt0*this.grid0[i][j].vetorX/10000;
+        y = j - dt0*this.grid0[i][j].vetorY/10000;
         
         if(x<0.5)
         x=0.5; 
@@ -222,12 +229,13 @@ Fluido.prototype.advection = function(atributo, b)
     
     this.set_bnd(b,this.grid,atributo);
 }
+
 Fluido.prototype.projection = function()
 {
     for(var i=1; i<this.tamOriginal-1; i++)
     for(var j=1; j<this.tamOriginal-1; j++)
     {
-        this.div[i][j].numero = -0.5*(this.grid[i+1][j].vetorX - this.grid[i-1][j].vetorX + this.grid[i][j+1].vetorY - this.grid[i][j-1].vetorY)/this.tamOriginal; 
+        this.div[i][j].numero = -0.5*(this.grid[i+1][j].vetorX - this.grid[i-1][j].vetorX + this.grid[i][j+1].vetorY - this.grid[i][j-1].vetorY)/this.tam; 
         this.p[i][j].numero = 0;
         
     }
@@ -251,8 +259,8 @@ Fluido.prototype.projection = function()
     for(var i=1; i<this.tamOriginal-1; i++)
     for(var j=1; j<this.tamOriginal-1; j++)
     {
-        this.grid[i][j].vetorX -= 0.5*(this.p[i+1][j].numero-this.p[i-1][j].numero)*this.tamOriginal;
-        this.grid[i][j].vetorY -= 0.5*(this.p[i][j+1].numero-this.p[i][j-1].numero)*this.tamOriginal;      
+        this.grid[i][j].vetorX -= 0.5*(this.p[i+1][j].numero-this.p[i-1][j].numero)*this.tam;
+        this.grid[i][j].vetorY -= 0.5*(this.p[i][j+1].numero-this.p[i][j-1].numero)*this.tam;      
     }
     
     this.set_bnd(1,this.grid,'vetorX');
@@ -262,34 +270,27 @@ Fluido.prototype.projection = function()
 
 Fluido.prototype.set_bnd = function(b,grid,atributo)
 {
-    for(var i=1; i<this.tamOriginal-1; i++)
+    for(var i=1; i<=this.tam; i++)
     {
-        grid[0][i][atributo] = b==1? -grid[1][i][atributo] : grid[1][i][atributo];
-        grid[this.tamOriginal-1][i][atributo] = b==1? -grid[this.tamOriginal-2][i][atributo] : grid[this.tamOriginal-2][i][atributo];
-    }
-    
-    for(var j=1; j<this.tamOriginal-1; j++)
-    {
-        grid[j][0][atributo] = b==2? -grid[j][1][atributo] : grid[j][1][atributo];
-        grid[j][this.tamOriginal-1][atributo] = b==2? -grid[j][this.tamOriginal-2][atributo] : grid[j][this.tamOriginal-2][atributo];
+        grid[0][i][atributo] = b===1? -grid[1][i][atributo] : grid[1][i][atributo];
+        grid[this.tam+1][i][atributo] = b===1? -grid[this.tam][i][atributo] : grid[this.tam][i][atributo];
+        grid[i][0][atributo] = b===2? -grid[i][1][atributo] : grid[i][1][atributo];
+        grid[i][this.tam+1][atributo] = b===2? -grid[i][this.tam][atributo] : grid[i][this.tam][atributo];
     }
     
     grid[0][0][atributo] = 0.5*(grid[1][0][atributo] + grid[0][1][atributo]);
-    grid[0][this.tamOriginal-1][atributo] = 0.5*(grid[0][this.tamOriginal-2][atributo] + grid[1][this.tamOriginal-1][atributo]);
-    grid[this.tamOriginal-1][this.tamOriginal-1][atributo] = 0.5*(grid[this.tamOriginal-1][this.tamOriginal-2][atributo] + grid[this.tamOriginal-2][this.tamOriginal-1][atributo]);
-    grid[this.tamOriginal-1][0][atributo] = 0.5*(grid[this.tamOriginal-1][1][atributo] + grid[this.tamOriginal-2][0][atributo]);   
+    grid[0][this.tam+1][atributo] = 0.5*(grid[0][this.tam][atributo] + grid[1][this.tam+1][atributo]);
+    grid[this.tam+1][this.tam+1][atributo] = 0.5*(grid[this.tam+1][this.tam][atributo] + grid[this.tam][this.tam+1][atributo]);
+    grid[this.tam+1][0][atributo] = 0.5*(grid[this.tam+1][1][atributo] + grid[this.tam][0][atributo]);   
 }
 
-Fluido.prototype.atualizarGrid0 = function()
+Fluido.prototype.atualizarGrid0 = function(atributo)
 {
     for(var i=0; i<this.tamOriginal; i++)
     {
         for(var j=0; j<this.tamOriginal; j++)
         {
-            this.grid0[i][j].densidade = this.grid[i][j].densidade;
-            this.grid0[i][j].vetorX = this.grid[i][j].vetorX; 
-            this.grid0[i][j].vetorY = this.grid[i][j].vetorY;
+            this.grid0[i][j][atributo] = this.grid[i][j][atributo];
         }
-    }
-    
+    }   
 }

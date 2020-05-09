@@ -84,6 +84,8 @@
                 fluido.grid[31+i][31+j].densidade = 5000;
             }
 
+                fluido.grid[32][32].vetorX = 1000;
+                fluido.grid[32][32].vetorY = 1000;
 
 
         function passo(t)
@@ -92,14 +94,6 @@
 
             ctx.fillStyle = "rgb(0,0,0)";
             ctx.fillRect(0,0,canvas.width, canvas.height);
-
-
-            if(mudaCor)
-            fluido.desenharFluidoDensidade(ctx);
-            else
-            fluido.desenharFluidoVelocidade(ctx);
-
-            
             
             if(pode)
             {
@@ -118,27 +112,32 @@
                 vel_step();
             }
 
+            if(mudaCor)
+            fluido.desenharFluidoDensidade(ctx);
+            else
+            fluido.desenharFluidoVelocidade(ctx);
+            
             requestAnimationFrame(passo);
         }
-
+        
         function dens_step()
         {
-            fluido.atualizarGrid0();
+            fluido.atualizarGrid0('densidade');
             fluido.diffusion('densidade',0);
-            fluido.atualizarGrid0();
+            fluido.atualizarGrid0('densidade');
             fluido.advection('densidade',0);
         }
         
         function vel_step()
         {
-            fluido.atualizarGrid0();
+            fluido.atualizarGrid0('vetorX');
             fluido.diffusion('vetorX',1);
-           //fluido.atualizarGrid0();
+            fluido.atualizarGrid0('vetorY');
             fluido.diffusion('vetorY',2);
             fluido.projection();
-            fluido.atualizarGrid0();
+            fluido.atualizarGrid0('vetorX');
+            fluido.atualizarGrid0('vetorY');
             fluido.advection('vetorX',1);
-            //fluido.atualizarGrid0();
             fluido.advection('vetorY',2);
             fluido.projection();
         }
