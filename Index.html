@@ -13,6 +13,10 @@
         <input type="number" id="acuracia" value="10"/>
         <label for="dt">Delta:</label>
         <input type="number" id="delta" value="0.1"/>
+        <label for="dt">Viscosidade:</label>
+        <input type="number" id="viscosidade" value="0.1"/>
+        <label for="dt">Diff:</label>
+        <input type="number" id="diff" value="0.1"/>
         <button id="botaoValores">Add Valores</button>
     </div>
     
@@ -263,16 +267,22 @@
 
         var acuracia = document.getElementById("acuracia");
         var delta = document.getElementById("delta");
+        var viscosidade = document.getElementById("viscosidade");
+        var diff = document.getElementById("diff");
         var botaoValores = document.getElementById("botaoValores");
 
         function valoresNovos()
         {
             var a = Number(acuracia.value);
             var b = Number(delta.value);
+            var c = Number(viscosidade.value);
+            var d = Number(diff.value);
             
 
             fluido.acuracy = a;
-            fluido.dt = b; 
+            fluido.dt = b;
+            fluido.viscosidade = c;
+            fluido.constDiff = d; 
         }
         botaoValores.addEventListener("click", valoresNovos);
 

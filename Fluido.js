@@ -48,12 +48,15 @@ CelulaFluido.prototype.desenharVelocidadeCelula = function(ctx){
     ctx.lineTo(this.destinoX+this.w/2,this.destinoY+this.h/2);
     //console.log(this.posX +" - "+this.vetorX+" = "+Number(this.vetorX+this.posX));
     ctx.stroke();
-    /*ctx.beginPath();
-    ctx.fillStyle = "red";
-    ctx.strokeStyle = "red";
-    if(this.vetorX!=0 ||this.vetorY!=0)
-    ctx.arc(this.posX+this.w/2, this.posY+this.h/2, 10*Math.sqrt(this.vetorX*this.vetorX+this.vetorY*this.vetorY), 0, Math.PI * 2, true);  
-    ctx.stroke();*/
+    /*if(this.vetorX!=0 || this.vetorY!=0)
+    {
+        ctx.beginPath();
+        ctx.fillStyle = "red";
+        ctx.strokeStyle = "red";
+        if(this.vetorX!=0 ||this.vetorY!=0)
+        ctx.arc(this.destinoX+this.w/2,this.destinoY+this.h/2, 1, 0, Math.PI * 2, true);  
+        ctx.stroke();
+    }*/
 }
 
 CelulaFluido.prototype.desenharDensidadeCelula = function(ctx){
@@ -83,6 +86,7 @@ function Fluido(exemplo = {})
         tam = 64,
         dt = 0.1,
         constDiff = 0.0,
+        viscosidade = 0.0,
         acuracy = 1
     } = exemplo;
 
@@ -92,6 +96,7 @@ function Fluido(exemplo = {})
     this.grid = [];
     this.grid0 = [];
     this.constDiff = constDiff;
+    this.viscosidade = viscosidade;
     this.acuracy = acuracy;
     this.div = [];
     this.p = [];
@@ -198,8 +203,8 @@ Fluido.prototype.advection = function(atributo, b)
     for(var i=1; i<this.tamOriginal-1; i++)
     for(var j=1; j<this.tamOriginal-1; j++)
     {
-        x = i - dt0*this.grid0[i][j].vetorX/10000;
-        y = j - dt0*this.grid0[i][j].vetorY/10000;
+        x = i - dt0*this.grid0[i][j].vetorX/(this.tam*this.tam);
+        y = j - dt0*this.grid0[i][j].vetorY/(this.tam*this.tam);
         
         if(x<0.5)
         x=0.5; 
