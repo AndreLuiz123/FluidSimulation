@@ -90,12 +90,13 @@ class Fluido{
             for(var j=1; j<this.tam+1; j++)
             {
                 this.grid[i][j].desenharVelocidadeCelula(ctx);
-            }    
+            }  
     }
     
-    diffusion(atributo,b)
+    diffusion(atributo,diff,b)
     {
-        var constante = this.constDiff*this.dt*this.tam*this.tam;
+        //console.log("?");
+        var constante = diff*this.dt*this.tam*this.tam;
         this.lin_solve(this.grid,this.grid0,atributo,constante,1+4*constante,b);
     }
     
@@ -121,8 +122,8 @@ class Fluido{
         for(var i=1; i<this.tam+1; i++)
         for(var j=1; j<this.tam+1; j++)
         {
-            x = i - dt0*this.grid0[i][j].vetorX/(this.tam*this.tam);
-            y = j - dt0*this.grid0[i][j].vetorY/(this.tam*this.tam);
+            x = i - dt0*this.grid0[i][j].vetorX;//(this.tam*this.tam);
+            y = j - dt0*this.grid0[i][j].vetorY;//(this.tam*this.tam);
             
             if(x<0.5)
             x=0.5; 
@@ -192,8 +193,8 @@ class Fluido{
         
         grid[0][0][atributo] = 0.5*(grid[1][0][atributo] + grid[0][1][atributo]);
         grid[0][this.tam+1][atributo] = 0.5*(grid[0][this.tam][atributo] + grid[1][this.tam+1][atributo]);
-        grid[this.tam+1][this.tam+1][atributo] = 0.5*(grid[this.tam+1][this.tam][atributo] + grid[this.tam][this.tam+1][atributo]);
         grid[this.tam+1][0][atributo] = 0.5*(grid[this.tam+1][1][atributo] + grid[this.tam][0][atributo]);   
+        grid[this.tam+1][this.tam+1][atributo] = 0.5*(grid[this.tam+1][this.tam][atributo] + grid[this.tam][this.tam+1][atributo]);
     }
     
     atualizarGrid0(atributo)

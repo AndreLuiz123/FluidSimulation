@@ -45,8 +45,8 @@ class CelulaFluido
         ctx.fillStyle = "white";
         ctx.strokeStyle = "white";
         ctx.beginPath();
-        ctx.moveTo(this.posX+this.w/2,this.posY+this.h/2);
-        ctx.lineTo(this.destinoX+this.w/2,this.destinoY+this.h/2);
+        ctx.moveTo(this.posX-this.w/2,this.posY-this.h/2);
+        ctx.lineTo(this.destinoX-this.w/2,this.destinoY-this.h/2);
         //console.log(this.posX +" - "+this.vetorX+" = "+Number(this.vetorX+this.posX));
         ctx.stroke();
         /*if(this.vetorX!=0 || this.vetorY!=0)

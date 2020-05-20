@@ -129,7 +129,7 @@
         function dens_step()
         {
             fluido.atualizarGrid0('densidade');
-            fluido.diffusion('densidade',0);
+            fluido.diffusion('densidade',fluido.constDiff,0);
             fluido.atualizarGrid0('densidade');
             fluido.advection('densidade',0);
         }
@@ -137,9 +137,9 @@
         function vel_step()
         {
             fluido.atualizarGrid0('vetorX');
-            fluido.diffusion('vetorX',1);
+            fluido.diffusion('vetorX',fluido.viscosidade,1);
             fluido.atualizarGrid0('vetorY');
-            fluido.diffusion('vetorY',2);
+            fluido.diffusion('vetorY',fluido.viscosidade,2);
             fluido.projection();
             fluido.atualizarGrid0('vetorX');
             fluido.atualizarGrid0('vetorY');
