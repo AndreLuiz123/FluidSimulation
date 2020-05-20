@@ -66,11 +66,10 @@ class Fluido{
         }
     }
     
-    
     desenharFluido(ctx,atributo='densidade')
     {
-        for(var i=1; i<this.tamOriginal-1; i++)
-            for(var j=1; j<this.tamOriginal-1; j++)
+        for(var i=1; i<this.tam+1; i++)
+            for(var j=1; j<this.tam+1; j++)
             {
                 this.grid[i][j].desenhaQuadrado(ctx);
             }    
@@ -78,8 +77,8 @@ class Fluido{
     
     desenharFluidoDensidade(ctx,atributo='densidade')
     {
-        for(var i=1; i<this.tamOriginal-1; i++)
-            for(var j=1; j<this.tamOriginal-1; j++)
+        for(var i=1; i<this.tam+1; i++)
+            for(var j=1; j<this.tam+1; j++)
             {
                 this.grid[i][j].desenharDensidadeCelula(ctx);
             }    
@@ -87,29 +86,27 @@ class Fluido{
     
     desenharFluidoVelocidade(ctx,atributo='densidade')
     {
-        for(var i=1; i<this.tamOriginal-1; i++)
-            for(var j=1; j<this.tamOriginal-1; j++)
+        for(var i=1; i<this.tam+1; i++)
+            for(var j=1; j<this.tam+1; j++)
             {
                 this.grid[i][j].desenharVelocidadeCelula(ctx);
             }    
     }
     
-    
-    
     diffusion(atributo,b)
     {
-        this.lin_solve(this.grid,this.grid0,atributo,b);
+        var constante = this.constDiff*this.dt*this.tam*this.tam;
+        this.lin_solve(this.grid,this.grid0,atributo,constante,1+4*constante,b);
     }
     
-    lin_solve(grid, grid0, atributo,b)
+    lin_solve(grid, grid0, atributo,constante,cRecip,b)
     {
         
-        var constante = this.constDiff*this.dt*this.tam*this.tam;
         for(var a=0; a<this.acuracy; a++){
-            for(var i=1; i<this.tamOriginal-1; i++)
-            for(var j=1; j<this.tamOriginal-1; j++)
+            for(var i=1; i<this.tam+1; i++)
+            for(var j=1; j<this.tam+1; j++)
             {
-                grid[i][j][atributo] = (grid0[i][j][atributo] + constante*(grid[i+1][j][atributo] + grid[i-1][j][atributo] + grid[i][j+1][atributo] + grid[i][j-1][atributo]))/(1+4*constante);   
+                grid[i][j][atributo] = (grid0[i][j][atributo] + constante*(grid[i+1][j][atributo] + grid[i-1][j][atributo] + grid[i][j+1][atributo] + grid[i][j-1][atributo]))/cRecip;   
             }
             this.set_bnd(b,grid,atributo);
         }
@@ -121,8 +118,8 @@ class Fluido{
         var x, y;
         var dt0 = this.dt*this.tam;
         
-        for(var i=1; i<this.tamOriginal-1; i++)
-        for(var j=1; j<this.tamOriginal-1; j++)
+        for(var i=1; i<this.tam+1; i++)
+        for(var j=1; j<this.tam+1; j++)
         {
             x = i - dt0*this.grid0[i][j].vetorX/(this.tam*this.tam);
             y = j - dt0*this.grid0[i][j].vetorY/(this.tam*this.tam);
@@ -158,8 +155,8 @@ class Fluido{
     
     projection()
     {
-        for(var i=1; i<this.tamOriginal-1; i++)
-        for(var j=1; j<this.tamOriginal-1; j++)
+        for(var i=1; i<this.tam+1; i++)
+        for(var j=1; j<this.tam+1; j++)
         {
             this.div[i][j].numero = -0.5*(this.grid[i+1][j].vetorX - this.grid[i-1][j].vetorX + this.grid[i][j+1].vetorY - this.grid[i][j-1].vetorY)/this.tam; 
             this.p[i][j].numero = 0;
@@ -169,20 +166,10 @@ class Fluido{
         this.set_bnd(0,this.div,'numero');
         this.set_bnd(0,this.p,'numero');
         
-        for(var k=0; k<this.acuracy; k++)
-        {
-            for(var i=1; i<this.tamOriginal-1; i++)
-            for(var j=1; j<this.tamOriginal-1; j++)
-            {
-                this.p[i][j].numero = (this.div[i][j].numero+this.p[i-1][j].numero+this.p[i+1][j].numero+this.p[i][j-1].numero+this.p[i][j+1].numero)/4;
-            }
-            
-            this.set_bnd(0,this.p,'numero');
-        }
-        //this.lin_solve(this.p,this.div,'numero',0);
+        this.lin_solve(this.p,this.div,'numero',1,4,0);
         
-        for(var i=1; i<this.tamOriginal-1; i++)
-        for(var j=1; j<this.tamOriginal-1; j++)
+        for(var i=1; i<this.tam+1; i++)
+        for(var j=1; j<this.tam+1; j++)
         {
             this.grid[i][j].vetorX -= 0.5*(this.p[i+1][j].numero-this.p[i-1][j].numero)*this.tam;
             this.grid[i][j].vetorY -= 0.5*(this.p[i][j+1].numero-this.p[i][j-1].numero)*this.tam;      
