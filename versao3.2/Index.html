@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="Fluido.js"></script>
+    <script src="CelulaFluido.js"></script>
+    <!-- <script src="FluidoAntigo.js"></script>-->
+    <title>Document</title>
+</head>
+<body>
+
+    <div>
+        <label for="acu">Acurácia:</label>
+        <input type="number" id="acuracia" value="10"/>
+        <label for="dt">Delta:</label>
+        <input type="number" id="delta" value="0.1"/>
+        <label for="dt">Viscosidade:</label>
+        <input type="number" id="viscosidade" value="0.1"/>
+        <label for="dt">Diff:</label>
+        <input type="number" id="diff" value="0.1"/>
+        <button id="botaoValores">Add Valores</button>
+    </div>
+    
+    <div>
+        <canvas></canvas>
+        <button id="difusão">Difusão</button>
+        <button id="advecção">Advecção</button>
+        <button id="projeção">Projeção</button>
+        <button id="rodarAdveccao">Rodar Tudo passo a passo</button>
+        <button id="rodarTudo">Rodar Tudo</button>
+        <button id="pausar">Pausar</button>
+        <button id="mudarDesenho">Mudar Desenho</button>
+        <button id="rodarDifusao">Resetar</button>
+    </div>
+    
+            <div>
+                <label for="col">Coluna:</label>
+                <input type="number" id="coluna" value="32"/>
+    
+                <label for="lin">Linha:</label>
+                <input type="number" id="linha" value="32"/>
+    
+                <label for="dens">Densidade:</label>
+                <input type="number" id="densidade" value="10000"/>
+                
+            </div>
+            <div class="button">
+                <button id="botaoDensidade">Add Densidade</button>
+            </div>
+    
+            <div>
+                <label for="col2">Coluna:</label>
+                <input type="number" id="colunaVetor" value="32"/>
+    
+                <label for="lin2">Linha:</label>
+                <input type="number" id="linhaVetor" value="32"/>
+    
+                <label for="vetorX">Vetor X:</label>
+                <input type="number" id="vetorX" value="10000"/>
+                <label for="vetorY">Vetor Y:</label>
+                <input type="number" id="vetorY" value="10000"/>
+                
+            </div>
+            <div class="button">
+                <button id="botaoVelocidade">Add Velocidade</button>
+            </div>
+
+    
+<script>
+
+        var canvas = document.querySelector("canvas");
+        canvas.width = 512;
+        canvas.height = 512;
+        var ctx = canvas.getContext("2d");
+
+        var anterior = 0;
+        var dt = 0;
+
+        var fluido = new Fluido();
+
+        fluido.criarGrids();
+
+        var pode=false, pode2=false, pode3=false;
+
+
+        for(var i=1; i<9;i++)
+            for(var j=1; j<9; j++)
+            {
+                fluido.grid[31+i][31+j].densidade = 5000;
+            }
+
+                fluido.grid[32][32].vetorX = 1000;
+                fluido.grid[32][32].vetorY = 1000;
+
+
+        function passo(t)
+        {
+            dt = (t-anterior)/1000;
+
+            ctx.fillStyle = "rgb(0,0,0)";
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            
+            if(pode)
+            {
+                fluido.atualizarGrid0();
+                fluido.diffusion('densidade',0);
+            }
+            
+            if(pode2)
+            {
+                fluido.atualizarGrid0();
+                fluido.advection('densidade',0);
+            }
+            if(pode3)
+            {
+                dens_step();
+                vel_step();
+            }
+
+            if(mudaCor)
+            fluido.desenharFluidoDensidade(ctx);
+            else
+            fluido.desenharFluidoVelocidade(ctx);
+            
+            requestAnimationFrame(passo);
+        }
+        
+        function dens_step()
+        {
+            fluido.atualizarGrid0('densidade');
+            fluido.diffusion('densidade',fluido.constDiff,0);
+            fluido.atualizarGrid0('densidade');
+            fluido.advection('densidade',0);
+        }
+        
+        function vel_step()
+        {
+            fluido.atualizarGrid0('vetorX');
+            fluido.diffusion('vetorX',fluido.viscosidade,1);
+            fluido.atualizarGrid0('vetorY');
+            fluido.diffusion('vetorY',fluido.viscosidade,2);
+            fluido.projection();
+            fluido.atualizarGrid0('vetorX');
+            fluido.atualizarGrid0('vetorY');
+            fluido.advection('vetorX',1);
+            fluido.advection('vetorY',2);
+            fluido.projection();
+        }
+
+        function difusao()
+        {
+            //fluido.projection();
+            fluido.diffusion('densidade',0);
+           // fluido.diffusion('vetorX',1);
+           // fluido.diffusion('vetorY',2);
+        }
+        var varBotao = document.getElementById("difusão");
+        varBotao.addEventListener("click", difusao);
+
+        function adveccao()
+        {
+            fluido.advection('densidade',0);
+           // fluido.advection('vetorX',1);
+           // fluido.advection('vetorY',2);            
+           //fluido.addAdvection();
+        }
+        var varBotao = document.getElementById("advecção");
+        varBotao.addEventListener("click", adveccao);
+        
+        var densidade = document.getElementById("densidade");
+        var coluna = document.getElementById("coluna");
+        var linha = document.getElementById("linha");
+        var botaoDensidade = document.getElementById("botaoDensidade");
+  
+        function valorNovoDensidadeCelula()
+        {
+            var a = Number(coluna.value);
+            var b = Number(linha.value);
+            var c = Number(densidade.value);
+            
+            if(a<0)
+                a = 0;
+            if(a>fluido.tamOriginal-1)
+                a = fluido.tamOriginal-1;
+
+            if(b<0)
+                b = 0;
+            if(b>fluido.tamOriginal-1)
+                b = fluido.tamOriginal-1;
+            
+            fluido.grid[a][b].densidade = c; 
+            fluido.grid0[a][b].densidade = c; 
+        }
+        botaoDensidade.addEventListener("click", valorNovoDensidadeCelula);
+        
+        
+        //---------------------------------------------------
+        
+        var vetorX = document.getElementById("vetorX");
+        var vetorY = document.getElementById("vetorY");
+        var colunaVetor = document.getElementById("colunaVetor");
+        var linhaVetor = document.getElementById("linhaVetor");
+        var botaoVelocidade = document.getElementById("botaoVelocidade");
+
+        function valorNovoVelocidadeCelula()
+        {
+            var a = Number(colunaVetor.value);
+            var b = Number(linhaVetor.value);
+            var c = Number(vetorX.value);
+            var d = Number(vetorY.value);
+            
+            if(a<0)
+                a = 0;
+            if(a>fluido.tam-1)
+                a = fluido.tam-1;
+
+            if(b<0)
+                b = 0;
+            if(b>fluido.tam-1)
+                b = fluido.tam-1;
+
+            fluido.grid[a][b].vetorX = c;
+            fluido.grid[a][b].vetorY = d; 
+        }
+        botaoVelocidade.addEventListener("click", valorNovoVelocidadeCelula);
+       
+        //------------------------------------------------------------------------
+        var botaoRodarDifusao = document.getElementById("rodarDifusao");
+        botaoRodarDifusao.addEventListener("click", function(){
+            for(var i=0; i<fluido.tamOriginal;i++)
+            for(var j=0; j<fluido.tamOriginal; j++)
+            {
+                fluido.grid[i][j].densidade = 0;
+                fluido.grid[i][j].vetorX = 0;
+                fluido.grid[i][j].vetorY = 0;
+            }
+        })
+
+        var botaoRodarAdveccao = document.getElementById("rodarAdveccao");
+        botaoRodarAdveccao.addEventListener("click", function(){
+            dens_step();
+            vel_step();
+        })
+
+        var botaoRodarTudo = document.getElementById("rodarTudo");
+        botaoRodarTudo.addEventListener("click", function(){
+            if(pode3)
+                pode3 = false;
+            else
+                pode3 = true;
+        })
+
+        var botaoPausar = document.getElementById("pausar");
+        botaoPausar.addEventListener("click", function(){
+            pode = false;
+            pode2 = false;
+            pode3 = false;
+        })
+
+        var botaoMudarDesenho = document.getElementById("mudarDesenho");
+        var mudaCor = false;
+        botaoMudarDesenho.addEventListener("click", function(){
+            if(mudaCor)
+                mudaCor = false;
+            else
+                mudaCor = true;
+        })
+
+        var acuracia = document.getElementById("acuracia");
+        var delta = document.getElementById("delta");
+        var viscosidade = document.getElementById("viscosidade");
+        var diff = document.getElementById("diff");
+        var botaoValores = document.getElementById("botaoValores");
+
+        function valoresNovos()
+        {
+            var a = Number(acuracia.value);
+            var b = Number(delta.value);
+            var c = Number(viscosidade.value);
+            var d = Number(diff.value);
+            
+
+            fluido.acuracy = a;
+            fluido.dt = b;
+            fluido.viscosidade = c;
+            fluido.constDiff = d; 
+        }
+        botaoValores.addEventListener("click", valoresNovos);
+
+
+        addEventListener("mouseclick", function(e){
+            
+
+        })
+
+        requestAnimationFrame(passo);
+    </script>
+</body>
+</html>
