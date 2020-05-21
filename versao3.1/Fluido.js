@@ -122,8 +122,8 @@ class Fluido{
         for(var i=1; i<this.tam+1; i++)
         for(var j=1; j<this.tam+1; j++)
         {
-            x = i - dt0*this.grid0[i][j].vetorX;//(this.tam*this.tam);
-            y = j - dt0*this.grid0[i][j].vetorY;//(this.tam*this.tam);
+            x = i - dt0*this.grid0[i][j].vetorX//(this.tam*this.tam);
+            y = j - dt0*this.grid0[i][j].vetorY//(this.tam*this.tam);
             
             if(x<0.5)
             x=0.5; 

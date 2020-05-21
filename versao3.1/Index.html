@@ -122,7 +122,14 @@
             fluido.desenharFluidoDensidade(ctx);
             else
             fluido.desenharFluidoVelocidade(ctx);
-            
+
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = "white";
+            ctx.font = "10px Verdana";
+            ctx.fillText(dt,10,20);
+
+
+            anterior = t; 
             requestAnimationFrame(passo);
         }
         

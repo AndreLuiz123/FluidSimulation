@@ -98,9 +98,12 @@
         {
             dt = (t-anterior)/1000;
 
+            
             ctx.fillStyle = "rgb(0,0,0)";
             ctx.fillRect(0,0,canvas.width, canvas.height);
             
+
+
             if(pode)
             {
                 fluido.atualizarGrid0();
@@ -122,6 +125,11 @@
             fluido.desenharFluidoDensidade(ctx);
             else
             fluido.desenharFluidoVelocidade(ctx);
+
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = "white";
+            ctx.font = "10px Verdana";
+            ctx.fillText("dt:"+dt,5,5);
             
             requestAnimationFrame(passo);
         }
